@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<title>Webbpris</title>
+<link rel="stylesheet" type="text/css" href="http://static.zencodez.net/yap-goodies/css/global.css" /> 
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/base/jquery-ui.css" type="text/css" media="all" />
+<link rel="stylesheet" type="text/css" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/ui-lightness/jquery-ui.css" />
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js"></script>
+<script src="easyTooltip.js"></script>
+<script src="jquery.tablesorter.min.js"></script>
+
+<!--[if IE]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+
+
+<style>
+.filter {
+	display: inline-block;
+	margin-right: 50px;
+}
+input {
+	color:#f6931f; 
+	font-weight:bold;
+}
+.input-number {
+	padding-right: 23px;
+	text-align: right;
+	width: 30px;
+}
+label.currency:after {
+	content:"kr"; 
+	color:#f6931f; 
+	font-weight:bold;
+	margin-left: 40px;
+	position: absolute; 
+}
+label.unit-gigabyte:after {
+	content:"gb"; 
+	color:#f6931f; 
+	font-weight:bold;
+	margin-left: 40px;
+	position: absolute; 
+}
+tr:nth-child(odd)  {
+	background-color: lightyellow;
+}
+tr:hover, tr:hover td {
+	background-color: #111;
+	color: #fff;
+}
+td {
+	text-align: right;
+}
+td:first-child {
+	text-align: left;
+}
+td:nth-child(even)  {
+	background-color: #EEE;
+}
+
+.ui-slider {
+	width: 250px;
+}
+
+#easyTooltip{ 
+	background-color: #ffff90;
+	border: 1px solid #DDD;
+	font-family: sans-serif;
+	font-size: 10px;
+	line-height: 16px;
+	max-width: 300px;
+	padding: 3px;
+	z-index: 2001;
+	
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+} 
+</style>
+<!--[if lt IE 8]>
+<style>
+.filter {
+	display: inline;
+}
+</style>
+<![endif]-->
+<script>
+$(function() {
+	var data = {
+		'Axbyte Standard' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />110kr startavgift' +
+				'<br />Bandbredd: 100 MBit/s' +
+				'<br />Operativsystem: Windows Server, IIS' +
+				'<br /><b>Ingår ej</b>' +
+				'<br />Mysql' +
+				'',
+			'link'		: 'http://www.axbyte.se/',
+			'price' 	: 36,
+			'space' 	: 1,
+			'traffic' 	: 100
+		},
+		'Axbyte Advanced' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />110kr startavgift' +
+				'<br />Bandbredd: 100 MBit/s' +
+				'<br />Operativsystem: Windows Server, IIS' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 5st á 40MB/st' +
+				'',
+			'link'		: 'http://www.axbyte.se/',
+			'price' 	: 86,
+			'space' 	: 3,
+			'traffic' 	: 100
+		},
+		'Ballou' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />99kr / månad (exkl)' +
+				'<br />300kr startavgift (exkl)' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'<br />Google Adwords 500kr' +
+				'',
+			'link'		: 'http://www.ballou.se/',
+			'price' 	: 124,
+			'space' 	: 3,
+			'traffic' 	: 80
+		},
+		'Binero Privatpaket' : {
+			'description' : 
+				'Senast uppdaterad: 2010-07-13' +
+				'<br />125kr startavgift' +
+				'',
+			'link'		: 'http://www.dpbolvw.net/2l116qgpmgo37AD98D8354A4AB4D',
+			'price' 	: 69,
+			'space' 	: 100,
+			'traffic' 	: 2000
+		},
+		'Binero Företagspaket' : {
+			'description' : 
+				'Senast uppdaterad: 2010-07-13' +
+				'<br />125kr startavgift' +
+				'',
+			'link'		: 'http://www.dpbolvw.net/2l116qgpmgo37AD98D8354A4AB4D',
+			'price' 	: 138,
+			'space' 	: 200,
+			'traffic' 	: 4000
+		},
+		'City Network' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />295kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'',
+			'link'		: 'http://www.citynetwork.se/',
+			'price' 	: 74,
+			'space' 	: 10,
+			'traffic' 	: 1000
+		},
+		'Cliche Delta' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />79kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />3 månader gratis' +
+				'',
+			'link'		: 'http://www.clichehosting.com/',
+			'price' 	: 19,
+			'space' 	: 1,
+			'traffic' 	: 0
+		},
+		'Cliche Epsilon' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />39kr startavgift' +
+				'',
+			'link'		: 'http://www.clichehosting.com/',
+			'price' 	: 29,
+			'space' 	: 2,
+			'traffic' 	: 0
+		},
+		'Cliche Zeta' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'',
+			'link'		: 'http://www.clichehosting.com/',
+			'price' 	: 39,
+			'space' 	: 3,
+			'traffic' 	: 0
+		},
+		'Crystone Standard' : {
+			'description' : 
+				'Senast uppdaterad: 2010-10-19' +
+				'<br />125kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'<br />Google Adwords 400kr' +
+				'',
+			'link'		: 'http://www.crystone.se/',
+			'price' 	: 75,
+			'space' 	: 100,
+			'traffic' 	: 2000
+		},
+		'Crystone Pro' : {
+			'description' : 
+				'Senast uppdaterad: 2010-10-19' +
+				'<br />99kr / månad (exkl)' +
+				'<br />199kr startavgift (exkl)' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'<br />Google Adwords 400kr' +
+				'',
+			'link'		: 'http://www.crystone.se/',
+			'price' 	: 124,
+			'space' 	: 200,
+			'traffic' 	: 5000
+		},
+		'Easywebbhotell' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />49kr / månad (exkl)' +
+				'<br />199kr startavgift' +
+				'<br />Kontrollpanel: Plesk' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'',
+			'link'		: 'http://easywebbhotell.se/',
+			'price' 	: 61,
+			'space' 	: 1,
+			'traffic' 	: 10
+		},
+		'FSdata FS Premium XL' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />149kr / månad (exkl)' +
+				'<br />495kr startavgift (exkl)' +
+				'<br />Kontrollpanel: Waff' +
+				'<br />Språk: PHP, Perl, SSI, Java, Python, Ruby on Rails' +
+				'',
+			'link'		: 'http://fsdata.se/',
+			'price' 	: 186,
+			'space' 	: 1,
+			'traffic' 	: 45
+		},
+		'FSdata FS Pro XL' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />289kr / månad (exkl)' +
+				'<br />495kr startavgift (exkl)' +
+				'<br />Kontrollpanel: Waff' +
+				'<br />Språk: PHP, Perl, SSI, Java, Python, Ruby on Rails' +
+				'',
+			'link'		: 'http://fsdata.se/',
+			'price' 	: 361,
+			'space' 	: 2.5,
+			'traffic' 	: 90
+		},
+		'Glesys Private' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />55kr / månad (exkl)' +
+				'',
+			'link'		: 'http://glesys.se/',
+			'price' 	: 69,
+			'space' 	: 1,
+			'traffic' 	: 25
+		},
+		'Glesys Enterprise' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />83kr / månad (exkl)' +
+				'',
+			'link'		: 'http://glesys.se/',
+			'price' 	: 104,
+			'space' 	: 2,
+			'traffic' 	: 50
+		},
+		'Glesys Max' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />149kr / månad (exkl)' +
+				'',
+			'link'		: 'http://glesys.se/',
+			'price' 	: 186,
+			'space' 	: 6.1,
+			'traffic' 	: 75
+		},
+		'Inleed Standard' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />Kontrollpanel: DirectAdmin' +
+				'',
+			'link'		: 'http://www.inleed.se/',
+			'price' 	: 19,
+			'space' 	: 1,
+			'traffic' 	: 10
+		},
+		'Inleed Special' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />Kontrollpanel: DirectAdmin' +
+				'',
+			'link'		: 'http://www.inleed.se/',
+			'price' 	: 29,
+			'space' 	: 3,
+			'traffic' 	: 30
+		},
+		'Inleed Återförsäljare' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />Kontrollpanel: DirectAdmin' +
+				'',
+			'link'		: 'http://www.inleed.se/',
+			'price' 	: 99,
+			'space' 	: 20,
+			'traffic' 	: 200
+		},
+		'Internet.se Alfa Micro' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />195kr / månad (exkl)' +
+				'',
+			'link'		: 'http://internet.se/',
+			'price' 	: 244,
+			'space' 	: 10,
+			'traffic' 	: 25
+		},
+		'Internet.se Alfa' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />295kr / månad (exkl)' +
+				'',
+			'link'		: 'http://internet.se/',
+			'price' 	: 369,
+			'space' 	: 20,
+			'traffic' 	: 50
+		},
+		'Internet.se Beta' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />395kr / månad (exkl)' +
+				'',
+			'link'		: 'http://internet.se/',
+			'price' 	: 494,
+			'space' 	: 30,
+			'traffic' 	: 100
+		},
+		'Internet.se Gamma' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />495kr / månad (exkl)' +
+				'',
+			'link'		: 'http://internet.se/',
+			'price' 	: 619,
+			'space' 	: 50,
+			'traffic' 	: 250
+		},
+		'Levonline Economy class' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />90kr / månad (exkl)' +
+				'<br />Språk: ASP, PHP, Perl, Python, bash' +
+				'<br /><b>Ingår ej</b>' +
+				'<br />Mod Rewrite' +
+				'<br />Mysql' +
+				'',
+			'link'		: 'http://www.levonline.com/',
+			'price' 	: 113,
+			'space' 	: 1,
+			'traffic' 	: 10
+		},
+		'Levonline Business class' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />150kr / månad (exkl)' +
+				'<br />Språk: ASP, PHP, Perl, Python, bash' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 1 st (20 MB max)' +
+				'',
+			'link'		: 'http://www.levonline.com/',
+			'price' 	: 188,
+			'space' 	: 2,
+			'traffic' 	: 15
+		},
+		'Levonline First class' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />225kr / månad (exkl)' +
+				'<br />Språk: ASP, JSP, PHP, Perl, Python, bash' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 1 st (30 MB max)' +
+				'',
+			'link'		: 'http://www.levonline.com/',
+			'price' 	: 281,
+			'space' 	: 5,
+			'traffic' 	: 20
+		},
+		'Levonline Royal class' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />450kr / månad (exkl)' +
+				'<br />Språk: ASP, JSP, PHP, Perl, Python, bash' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 1 st (40 MB max)' +
+				'',
+			'link'		: 'http://www.levonline.com/',
+			'price' 	: 563,
+			'space' 	: 10,
+			'traffic' 	: 30
+		},
+		'Oderland Privat' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />69kr / månad (exkl)' +
+				'<br />188kr startavgift' +
+				'',
+			'link'		: 'http://www.oderland.se/',
+			'price' 	: 86,
+			'space' 	: 10,
+			'traffic' 	: 50
+		},
+		'Oderland Företag' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />167kr / månad (exkl)' +
+				'<br />188kr startavgift' +
+				'',
+			'link'		: 'http://www.oderland.se/',
+			'price' 	: 209,
+			'space' 	: 20,
+			'traffic' 	: 250
+		},
+		'One.com 12' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />12kr / månad (exkl)' +
+				'<br />115kr startavgift (exkl)' +
+				'',
+			'link'		: 'http://clk.tradedoubler.com/click?p=15402&a=1527003&g=16173894',
+			'price' 	: 15,
+			'space' 	: 3,
+			'traffic' 	: 0
+		},
+		'One.com 24' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />24kr / månad (exkl)' +
+				'<br />115kr startavgift (exkl)' +
+				'',
+			'link'		: 'http://clk.tradedoubler.com/click?p=15402&a=1527003&g=16173894',
+			'price' 	: 30,
+			'space' 	: 10,
+			'traffic' 	: 0
+		},
+		'One.com 45' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />45kr / månad (exkl)' +
+				'<br />115kr startavgift (exkl)' +
+				'',
+			'link'		: 'http://clk.tradedoubler.com/click?p=15402&a=1527003&g=16173894',
+			'price' 	: 56,
+			'space' 	: 25,
+			'traffic' 	: 0
+		},
+		'Loopia Privatpaketet' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />369kr startavgift' +
+				'<br />Språk: ASP, ASP.net, PHP, Perl, Python' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 500kr' +
+				'',
+			'link'		: 'http://click.double.net/?29810;389;11862;0;37427',
+			'price' 	: 83,
+			'space' 	: 5,
+			'traffic' 	: 50
+		},
+		'Loopia Företagspaketet' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />369kr startavgift' +
+				'<br />Språk: ASP, ASP.net, PHP, Perl, Python' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 750kr' +
+				'',
+			'link'		: 'http://clk.tradedoubler.com/click?p=61444&a=1527003&g=16944738',
+			'price' 	: 141,
+			'space' 	: 10,
+			'traffic' 	: 100
+		},
+		'Scorpion Data Midiwebb' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />60kr / månad (exkl)' +
+				'<br />Språk: PHP, Perl, Python, Ruby' +
+				'',
+			'link'		: 'http://www.scorpiondata.com/',
+			'price' 	: 75,
+			'space' 	: 8,
+			'traffic' 	: 80
+		},
+		'Scorpion Data Maxiwebb' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />90kr / månad (exkl)' +
+				'<br />Språk: PHP, Perl, Python, Ruby' +
+				'',
+			'link'		: 'http://www.scorpiondata.com/',
+			'price' 	: 113,
+			'space' 	: 13,
+			'traffic' 	: 130
+		},
+		'Space2u Steg 2' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />95kr / månad (exkl)' +
+				'<br />Språk: ASP, ASP.net, JSP, PHP' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 15st á 100MB/st' +
+				'',
+			'link'		: 'http://www.space2u.com/',
+			'price' 	: 119,
+			'space' 	: 1,
+			'traffic' 	: 15
+		},
+		'Space2u Steg 3' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />145kr / månad (exkl)' +
+				'<br />Språk: ASP, ASP.net, JSP, PHP' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 30st á 100MB/st' +
+				'',
+			'link'		: 'http://www.space2u.com/',
+			'price' 	: 181,
+			'space' 	: 2,
+			'traffic' 	: 25
+		},
+		'Space2u Steg 4' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />225kr / månad (exkl)' +
+				'<br />Språk: ASP, ASP.net, JSP, PHP' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 75st á 100MB/st' +
+				'',
+			'link'		: 'http://www.space2u.com/',
+			'price' 	: 281,
+			'space' 	: 3,
+			'traffic' 	: 50
+		},
+		'Space2u Steg 5' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />450kr / månad (exkl)' +
+				'<br />Språk: JSP, PHP, Python' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - 100st á 100MB/st' +
+				'',
+			'link'		: 'http://www.space2u.com/',
+			'price' 	: 563,
+			'space' 	: 10,
+			'traffic' 	: 100
+		},
+		'Strongbox Web Start' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />65kr / månad (exkl)' +
+				'<br />Språk: ASP, ASP.net, C, C++, VB-script, PHP, Perl, Python' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'<br /><b>Övrigta upplysningar</b>' +
+				'<br />Mysql - tilläggstjänst' +
+				'',
+			'link'		: 'http://strongbox.se/',
+			'price' 	: 81,
+			'space' 	: 5,
+			'traffic' 	: 40
+		},
+		'Strongbox Web Unlimited' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />124kr / månad (exkl)' +
+				'<br />Språk: ASP, ASP.net, C, C++, VB-script, PHP, Perl, Python' +
+				'<br /><b>Ingår</b>' +
+				'<br />1 domän (första året)' +
+				'',
+			'link'		: 'http://strongbox.se/',
+			'price' 	: 155,
+			'space' 	: 0,
+			'traffic' 	: 200
+		},
+		'Surftown Privat Starter' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />49kr / månad (första året)' +
+				'<br />149kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 500kr' +
+				'',
+			'link'		: 'http://clk.tradedoubler.com/click?p=17615&a=1527003&g=18523622',
+			'price' 	: 36,
+			'space' 	: 10,
+			'traffic' 	: 30
+		},
+		'Surftown Privat Advanced' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />41kr / månad (första året)' +
+				'<br />149kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 500kr' +
+				'',
+			'link'		: 'http://www.kqzyfj.com/31111shqnhp48BEA9E94659E856E',
+			'price' 	: 61,
+			'space' 	: 20,
+			'traffic' 	: 50
+		},
+		'Surftown Privat Expert' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />99kr / månad (första året)' +
+				'<br />149kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 500kr' +
+				'',
+			'link'		: 'http://www.kqzyfj.com/31111shqnhp48BEA9E94659E856E',
+			'price' 	: 86,
+			'space' 	: 30,
+			'traffic' 	: 70
+		},
+		'Surftown Företag Light' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />141kr / månad (första året)' +
+				'<br />149kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 750kr' +
+				'',
+			'link'		: 'http://clk.tradedoubler.com/click?p=17615&a=1527003&g=18523622',
+			'price' 	: 229,
+			'space' 	: 10,
+			'traffic' 	: 100
+		},
+		'Surftown Företag Medium' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />311kr / månad (första året)' +
+				'<br />149kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 750kr' +
+				'',
+			'link'		: 'http://www.kqzyfj.com/31111shqnhp48BEA9E94659E856E',
+			'price' 	: 299,
+			'space' 	: 20,
+			'traffic' 	: 150
+		},
+		'Surftown Företag Premium' : {
+			'description' : 
+				'Senast uppdaterad: 2010-05-23' +
+				'<br />381kr / månad (första året)' +
+				'<br />149kr startavgift' +
+				'<br /><b>Ingår</b>' +
+				'<br />Google Adwords 750kr' +
+				'',
+			'link'		: 'http://www.kqzyfj.com/31111shqnhp48BEA9E94659E856E',
+			'price' 	: 369,
+			'space' 	: 30,
+			'traffic' 	: 300
+		},
+		'VOOX Medium' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />Språk: ASP, ASP.net, PHP, Perl, Python' +
+				'',
+			'link'		: 'http://www.voox.se/',
+			'price' 	: 79,
+			'space' 	: 1,
+			'traffic' 	: 100
+		},
+		'VOOX Large' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />Språk: ASP, ASP.net, PHP, Perl, Python' +
+				'',
+			'link'		: 'http://www.voox.se/',
+			'price' 	: 129,
+			'space' 	: 2,
+			'traffic' 	: 200
+		},
+		'Web10 Privat bas' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />15kr / månad (första året)' +
+				'<br />99kr startavgift' +
+				'',
+			'link'		: 'http://www.web10.se/',
+			'price' 	: 25,
+			'space' 	: 5,
+			'traffic' 	: 0
+		},
+		'Web10 Privat utvidgat' : {
+			'description' : 
+				'Senast uppdaterad: 2010-06-01' +
+				'<br />99kr startavgift' +
+				'',
+			'link'		: 'http://www.web10.se/',
+			'price' 	: 45,
+			'space' 	: 10,
+			'traffic' 	: 0
+		}
+	}
+
+	$("#price-range").slider({
+		range: true,
+		min: 1,
+		max: 600,
+		values: [10, 200],
+		slide: function(event, ui) {
+			$("#amount-price-min").val(ui.values[0]);
+			$("#amount-price-max").val(ui.values[1]);
+		},
+		stop: filter_result
+	});
+	$("#amount-price-min").val($("#price-range").slider("values", 0));
+	$("#amount-price-max").val($("#price-range").slider("values", 1));
+	
+	$("#space-range").slider({
+		range: true,
+		min: 1,
+		max: 300,
+		values: [1, 200],
+		slide: function(event, ui) {
+			$("#amount-space-min").val(ui.values[0]);
+			$("#amount-space-max").val(ui.values[1]);
+		},
+		stop: filter_result
+	});
+	$("#amount-space-min").val($("#space-range").slider("values", 0));
+	$("#amount-space-max").val($("#space-range").slider("values", 1));	
+	
+	$("#traffic-range").slider({
+		range: true,
+		min: 1,
+		max: 5000,
+		values: [10, 4000],
+		slide: function(event, ui) {
+			$("#amount-traffic-min").val(ui.values[0]);
+			$("#amount-traffic-max").val(ui.values[1]);
+		},
+		stop: filter_result
+	});
+	$("#amount-traffic-min").val($("#traffic-range").slider("values", 0));
+	$("#amount-traffic-max").val($("#traffic-range").slider("values", 1));
+	
+	init();
+	function init() {
+		var container = $('#result').find('tbody');
+		$.each(data, function(key, value) {
+			var html = '<tr>';
+			if (value.link) {
+				html += '<td><a href="' + value.link + '" target="_blank">' + key + '</a></td>';
+			} else {
+				html += '<td>' + key + '</td>';
+			}
+				html += '<td><span class="value">' + value.price + '</span> kr</td>';
+				html += '<td><span class="value">' + ((value.space!=0) ? value.space : 'Unlimited*') + '</span> gb</td>';
+				html += '<td><span class="value">' + ((value.traffic!=0) ? value.traffic : 'Unlimited*') + '</span> gb</td>';
+			if (value.space>0) {
+				html += '<td><span class="value">' + Math.round((value.space/value.price)*100)/100 + '</span> gb/kr</td>';
+			} else {
+				html += '<td><span class="value">0</span></td>';
+			}
+			if (value.traffic>0) {
+				html += '<td><span class="value">' + Math.round((value.traffic/value.price)*100)/100 + '</span> gb/kr</td>';
+			} else {
+				html += '<td><span class="value">0</span></td>';
+			}
+			if (value.space>0&&value.traffic>0) {
+				html += '<td><span class="value">' + Math.round((value.space/value.price+value.traffic/value.price)*100)/100 + '</span> gb/kr</td>';
+				html += '<td><span class="value">' + Math.round((value.space/value.traffic)*100)/100 + '</span></td>';
+				html += '</tr>';
+			} else {
+				html += '<td><span class="value">0</span></td>';
+				html += '<td><span class="value">0</span></td>';
+			}
+			var obj = $(html).appendTo(container);
+			if (value.description) {
+				obj.easyTooltip({ content: value.description, clickRemove: true });
+			}
+		});
+		
+		filter_result();
+	}
+	
+	function filter_result() {
+		var container = $('#result').find('tbody tr');
+		
+		container.each(function(i) {
+			$(this).show();
+			// price
+			var price = parseInt($(this).find('td::eq(1) .value').text(), 10),
+				space = $(this).find('td::eq(2) .value').text(),
+				traffic = $(this).find('td::eq(3) .value').text();
+				
+			space = (space == 'Unlimited*') ? parseInt($("#amount-space-max").val(), 10) - 1 : parseInt(space, 10);
+			traffic = (traffic == 'Unlimited*') ? parseInt($("#amount-traffic-max").val(), 10) - 1 : parseInt(traffic, 10);
+			
+			if (price > parseInt($("#amount-price-max").val(), 10) || 
+				price < parseInt($("#amount-price-min").val(), 10) ||
+				space > parseInt($("#amount-space-max").val(), 10) || 
+				space < parseInt($("#amount-space-min").val(), 10) ||
+				traffic > parseInt($("#amount-traffic-max").val(), 10) || 
+				traffic < parseInt($("#amount-traffic-min").val(), 10))
+				$(this).hide();
+		});
+	}
+	
+	$(".sortable").tablesorter();
+});
+</script>
+</head>
+<body>
+<header>
+<h1>Webbpris</h1>
+<h2>Jämför olika webbhotell</h2>
+</header>
+<form>
+<div class="filter">
+<b>Månadskostnad</b>
+<div id="price-range"></div>
+<label for="amount-price-min" class="currency">MIN</label>
+<input type="text" id="amount-price-min" class="input-number" />
+<label for="amount-price-max" class="currency">MAX</label>
+<input type="text" id="amount-price-max" class="input-number" />
+</div>
+
+<div class="filter">
+<b>Utrymme</b>
+<div id="space-range"></div>
+<label for="amount-space-min" class="unit-gigabyte">MIN</label>
+<input type="text" id="amount-space-min" class="input-number" />
+<label for="amount-space-max" class="unit-gigabyte">MAX</label>
+<input type="text" id="amount-space-max" class="input-number" />
+</div>
+
+<div class="filter">
+<b>Trafik</b>
+<div id="traffic-range"></div>
+<label for="amount-traffic-min" class="unit-gigabyte">MIN</label>
+<input type="text" id="amount-traffic-min" class="input-number" />
+<label for="amount-traffic-max" class="unit-gigabyte">MAX</label>
+<input type="text" id="amount-traffic-max" class="input-number" />
+</div>
+</form>
+
+<table id="result" class="sortable">
+	<thead>
+		<tr>
+			<th>Paket</th>
+			<th>Månadskostnad</th>
+			<th>Utrymme</th>
+			<th>Trafik</th>
+			<th>Utrymme per kostnad (UpK)</th>
+			<th>Trafik per kostnad (TpK)</th>
+			<th>UpK + TpK</th>
+			<th>Ratio: Utrymme:Trafik</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+<footer>
+<p>* Det finns inget som är Unlimited</p>
+<p>Ansvarar ej för felaktig information</p>
+<p>Alla priser är inkl moms</p>
+<p>Felaktig information eller saknas något paket? Kontakta mig!</p>
+<img src="http://metroroll.zencodez.net/ref/email.php"/>
+<p><span style="color: red;">Senast uppdaterad 2010-06-01</span></p>
+<a href="http://www.zencodez.net">Copyright © 2010 Han Lin Yap</a>
+
+</footer>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-1944741-2");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
